@@ -149,20 +149,20 @@ class TestCustomValidator(TestCase):
             'category': {
                 'type': str,
             },
-            'demage': {
-                'validator': self._demage_validator,
+            'damage': {
+                'validator': self._damage_validator,
             },
         }
 
         # valid
-        data = {'category': 'sword', 'demage': 100}
+        data = {'category': 'sword', 'damage': 100}
         self.assertEqual(validate(schema, data), data)
 
         # invalid
-        data = {'category': 'sword', 'demage': 1000}
+        data = {'category': 'sword', 'damage': 1000}
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
-        message = {'demage': u'Swords can not have demage greater then 100.'}
+        message = {'damage': u'Swords can not have damage greater then 100.'}
         self.assertEqual(cm.exception.message, message)
 
     def _username_validator(self, name, defs, data, value):
@@ -174,13 +174,13 @@ class TestCustomValidator(TestCase):
 
         return value
 
-    def _demage_validator(self, name, defs, data, value):
+    def _damage_validator(self, name, defs, data, value):
         if not isinstance(value, int):
             raise ValidationError(u'Field must be a int instance.')
 
         if data['category'] == 'sword':
             if value > 100:
-                message = u'Swords can not have demage greater then 100.'
+                message = u'Swords can not have damage greater then 100.'
                 raise ValidationError(message)
 
         return value
