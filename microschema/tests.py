@@ -86,15 +86,15 @@ class TestValidation(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {
-            'str': u'Field must be a str instance.',
-            'unicode': u'Field must be a unicode instance.',
-            'basestring': u'Field must be a basestring instance.',
-            'dict': u'Field must be a dict instance.',
-            'list': u'Field must be a list instance.',
-            'int': u'Field must be a int instance.',
-            'long': u'Field must be a long instance.',
-            'float': u'Field must be a float instance.',
-            'bool': u'Field must be a bool instance.',
+            'str': u'Field must be a str instance, got: int.',
+            'unicode': u'Field must be a unicode instance, got: int.',
+            'basestring': u'Field must be a basestring instance, got: int.',
+            'dict': u'Field must be a dict instance, got: int.',
+            'list': u'Field must be a list instance, got: int.',
+            'int': u'Field must be a int instance, got: str.',
+            'long': u'Field must be a long instance, got: str.',
+            'float': u'Field must be a float instance, got: int.',
+            'bool': u'Field must be a bool instance, got: str.',
         }
         self.assertEqual(cm.exception.message, message)
 

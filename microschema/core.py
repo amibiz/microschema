@@ -10,7 +10,7 @@ messages = {
     'input': u'input {name} must be a dictionary instance, got: {type}.',
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
-    'field': u'Field must be a {type} instance.',
+    'field': u'Field must be a {schema_type} instance, got: {field_type}.',
 }
 
 
@@ -64,15 +64,19 @@ def validate(schema, data):
 
 
 def default_validator(name, defs, data, value):
-    if not isinstance(value, defs['type']):
-        message = messages['field']
-        raise ValidationError(message.format(type=defs['type'].__name__))
+    schema_type = defs['type']
+    if not isinstance(value, schema_type):
+        message = messages['field'].format(
+            schema_type=schema_type.__name__,
+            field_type=type(value).__name__,
+        )
+        raise ValidationError(message)
 
-    if defs['type'] == dict:
+    if schema_type == dict:
         validate(defs['schema'], value)
 
     errors = {}
-    if defs['type'] == list:
+    if schema_type == list:
         for index, item in enumerate(value):
             try:
                 validate(defs['schema'], item)
