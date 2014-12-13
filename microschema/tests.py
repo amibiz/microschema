@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import datetime
 from unittest import TestCase
 
-from microschema import validate, ValidationError
+from microschema import (
+    validate,
+    convert,
+    ValidationError,
+    ConversionError,
+)
 
 
 # TODO: test required field
@@ -184,3 +190,73 @@ class TestCustomValidator(TestCase):
                 raise ValidationError(message)
 
         return value
+
+
+class TestConversion(TestCase):
+    def test_with_validation(self):
+        # valid
+        schema = {'str': {'type': str}}
+        data = {'str': 'string'}
+        self.assertEqual(convert(schema, data), data)
+
+        # invalid
+        schema = {'str': {'type': str}}
+        data = {'str': 'string', 'int': 1}
+        with self.assertRaises(ValidationError) as cm:
+            convert(schema, data)
+        message = {'int': u'Rogue field.'}
+        self.assertEqual(cm.exception.message, message)
+
+    def test_without_validation(self):
+        # valid
+        schema = {'str': {'type': str}}
+        data = {'str': 'string'}
+        self.assertEqual(convert(schema, data, validated=True), data)
+
+        # rogue fields
+        schema = {'str': {'type': str}}
+        data = {'str': 'string', 'int': 1}
+        self.assertNotEqual(convert(schema, data, validated=True), data)
+
+        # missing fields
+        schema = {'str': {'type': str}}
+        data = {}
+        self.assertNotEqual(convert(schema, data, validated=True), data)
+
+    def test_custom_validator(self):
+        schema = {
+            'timestamp': {
+                'type': int,
+                'required': True,
+                'convertor': self._timestamp_convertor
+            },
+        }
+
+        dt = datetime.datetime(2014, 12, 13, 21, 45, 28)
+        ts = int(dt.strftime('%s'))
+
+        data = {'timestamp': ts}
+        converted_data = {'timestamp': dt}
+
+        self.assertEqual(convert(schema, data), converted_data)
+
+    def test_conversion_exception(self):
+        schema = {
+            'timestamp': {
+                'type': int,
+                'required': True,
+                'convertor': self._timestamp_convertor
+            },
+        }
+
+        data = {'timestamp': 1000000000000}
+        with self.assertRaises(ConversionError) as cm:
+            convert(schema, data)
+        message = {'timestamp': u'year is out of range'}
+        self.assertEqual(cm.exception.message, message)
+
+    def _timestamp_convertor(self, defs, data, value):
+        try:
+            return datetime.datetime.fromtimestamp(value)
+        except ValueError as e:
+            raise ConversionError(unicode(e.message))
