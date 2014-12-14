@@ -117,7 +117,6 @@ def default_validator(name, defs, data, value):
                     schema = defs['schema']
                 default_validator(index, schema, value, item)
             except KeyError as e:
-                print e
                 errors.update({index: messages['schema']})
             except (TypeError, ValidationError) as e:
                 errors.update({index: e.message})
