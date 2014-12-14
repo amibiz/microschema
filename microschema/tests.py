@@ -14,6 +14,7 @@ from microschema import (
 
 # TODO: test required field
 # TODO: test when inferred value is missing
+# TODO: test compound type
 
 class TestValidation(TestCase):
     def test_empty(self):

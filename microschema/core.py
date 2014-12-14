@@ -14,6 +14,7 @@ messages = {
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
     'field': u'Field must be a {schema_type} instance, got: {field_type}.',
+    'schema': u'Missing schema definition.',
 }
 
 
@@ -94,6 +95,8 @@ def convert(schema, data, validated=False):
 
 def default_validator(name, defs, data, value):
     schema_type = defs['type']
+    compound_type = defs.get('compound_type')
+
     if not isinstance(value, schema_type):
         message = messages['field'].format(
             schema_type=schema_type.__name__,
@@ -108,7 +111,14 @@ def default_validator(name, defs, data, value):
     if schema_type == list:
         for index, item in enumerate(value):
             try:
-                validate(defs['schema'], item)
+                if compound_type is not None:
+                    schema = {'type': compound_type}
+                else:
+                    schema = defs['schema']
+                default_validator(index, schema, value, item)
+            except KeyError as e:
+                print e
+                errors.update({index: message['schema']})
             except (TypeError, ValidationError) as e:
                 errors.update({index: e.message})
 
@@ -119,7 +129,12 @@ def default_validator(name, defs, data, value):
 
 
 def default_convertor(defs, data, value):
-    schema_type = defs['type']
+    compound_type = defs.get('compound_type')
+    if compound_type is not None:
+        schema_type = compound_type
+    else:
+        schema_type = defs['type']
+
     if schema_type == dict:
         return convert(defs['schema'], value)
 
