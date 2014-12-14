@@ -81,9 +81,9 @@ def convert(schema, data, validated=False):
         field = data.get(name)
 
         # convert field
-        convertor = defs.get('convertor', default_convertor)
+        converter = defs.get('converter', default_converter)
         try:
-            converted_data[name] = convertor(defs, data, field)
+            converted_data[name] = converter(defs, data, field)
         except ConversionError as e:
             errors.update({name: e.message})
 
@@ -128,7 +128,7 @@ def default_validator(name, defs, data, value):
     return value
 
 
-def default_convertor(defs, data, value):
+def default_converter(defs, data, value):
     compound_type = defs.get('compound_type')
     if compound_type is not None:
         schema_type = compound_type
