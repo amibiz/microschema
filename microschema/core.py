@@ -112,10 +112,11 @@ def default_validator(name, defs, data, value):
         for index, item in enumerate(value):
             try:
                 if compound_type is not None:
-                    schema = {'type': compound_type}
-                else:
-                    schema = defs['schema']
-                default_validator(index, schema, value, item)
+                    compound_defs = {'type': compound_type}
+                    default_validator(index, compound_defs, value, item)
+                    continue
+                schema = defs['schema']
+                validate(schema, item)
             except KeyError as e:
                 errors.update({index: messages['schema']})
             except (TypeError, ValidationError) as e:
