@@ -133,7 +133,10 @@ def default_converter(defs, data, value):
     if compound_type is not None:
         schema_type = compound_type
     else:
-        schema_type = defs['type']
+        try:
+            schema_type = defs['type']
+        except KeyError as e:
+            return value
 
     if schema_type == dict:
         return convert(defs['schema'], value)
