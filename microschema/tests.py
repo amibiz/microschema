@@ -172,7 +172,7 @@ class TestCustomValidator(TestCase):
         message = {'damage': u'Swords can not have damage greater then 100.'}
         self.assertEqual(cm.exception.message, message)
 
-    def _username_validator(self, name, defs, data, value):
+    def _username_validator(self, name, defs, data, value, context=None):
         if not isinstance(value, str):
             raise ValidationError(u'Field must be a str instance.')
 
@@ -181,7 +181,7 @@ class TestCustomValidator(TestCase):
 
         return value
 
-    def _damage_validator(self, name, defs, data, value):
+    def _damage_validator(self, name, defs, data, value, context=None):
         if not isinstance(value, int):
             raise ValidationError(u'Field must be a int instance.')
 

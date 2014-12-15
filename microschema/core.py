@@ -18,7 +18,7 @@ messages = {
 }
 
 
-def validate(schema, data):
+def validate(schema, data, context=None):
     """Validates data based on a given schema."""
 
     if not isinstance(schema, dict):
@@ -57,7 +57,7 @@ def validate(schema, data):
         # validate field
         validator = defs.get('validator', default_validator)
         try:
-            validator(name, defs, data, field)
+            validator(name, defs, data, field, context=context)
         except ValidationError as e:
             errors.update({name: e.message})
 
@@ -93,7 +93,7 @@ def convert(schema, data, validated=False):
     return converted_data
 
 
-def default_validator(name, defs, data, value):
+def default_validator(name, defs, data, value, context=None):
     schema_type = defs['type']
     compound_type = defs.get('compound_type')
 
