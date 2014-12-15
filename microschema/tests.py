@@ -224,12 +224,12 @@ class TestConversion(TestCase):
         data = {}
         self.assertNotEqual(convert(schema, data, validated=True), data)
 
-    def test_custom_validator(self):
+    def test_custom_converter(self):
         schema = {
             'timestamp': {
                 'type': int,
                 'required': True,
-                'convertor': self._timestamp_convertor
+                'converter': self._timestamp_convertor
             },
         }
 
@@ -239,14 +239,15 @@ class TestConversion(TestCase):
         data = {'timestamp': ts}
         converted_data = {'timestamp': dt}
 
-        self.assertEqual(convert(schema, data), converted_data)
+        ttt = convert(schema, data)
+        self.assertEqual(ttt, converted_data)
 
     def test_conversion_exception(self):
         schema = {
             'timestamp': {
                 'type': int,
                 'required': True,
-                'convertor': self._timestamp_convertor
+                'converter': self._timestamp_convertor
             },
         }
 
