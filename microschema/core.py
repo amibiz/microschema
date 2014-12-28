@@ -14,6 +14,7 @@ messages = {
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
     'field': u'Field must be a {schema_type} instance, got: {field_type}.',
+    'none': u'Field must be None, got: {field_type}.',
     'schema': u'Missing schema definition.',
 }
 
@@ -46,12 +47,12 @@ def validate(schema, data, context=None):
         required = defs.get('required', False)
 
         # report missing required fields
-        if required and data.get(name) is None:
+        if required and name not in data:
             errors.update({name: messages['missing']})
             continue
 
         # skip missing fields
-        if data.get(name) is None:
+        if name not in data:
             continue
 
         # validate field
@@ -96,6 +97,15 @@ def convert(schema, data, validated=False):
 def default_validator(name, defs, data, value, context=None):
     schema_type = defs['type']
     compound_type = defs.get('compound_type')
+
+    if schema_type is None:
+        if value is not None:
+            message = messages['none'].format(
+                field_type=type(value).__name__,
+            )
+            raise ValidationError(message)
+        else:
+            return value
 
     if not isinstance(value, schema_type):
         message = messages['field'].format(

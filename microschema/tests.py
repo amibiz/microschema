@@ -62,6 +62,7 @@ class TestValidation(TestCase):
             'long': {'type': long},
             'float': {'type': float},
             'bool': {'type': bool},
+            'none': {'type': None},
         }
 
         # valid
@@ -75,6 +76,7 @@ class TestValidation(TestCase):
             'long': 10000000000000000000,
             'float': 1.0,
             'bool': True,
+            'none': None,
         }
         self.assertEqual(validate(schema, data), data)
 
@@ -89,6 +91,7 @@ class TestValidation(TestCase):
             'long': 'foo',
             'float': 1,
             'bool': 'foo',
+            'none': 'foo',
         }
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
@@ -102,6 +105,7 @@ class TestValidation(TestCase):
             'long': u'Field must be a long instance, got: str.',
             'float': u'Field must be a float instance, got: int.',
             'bool': u'Field must be a bool instance, got: str.',
+            'none': u'Field must be None, got: str.',
         }
         self.assertEqual(cm.exception.message, message)
 
