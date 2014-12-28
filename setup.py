@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from setuptools import setup
 
+from microschema import __version__
 
 def readme():
     with open('README.rst') as f:
@@ -11,7 +12,7 @@ def readme():
 
 setup(
     name='microschema',
-    version='0.1',
+    version=__version__,
     description='MicroSchema is a schema validation framework for Python.',
     long_description=readme(),
     classifiers=[
