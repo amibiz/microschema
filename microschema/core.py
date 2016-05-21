@@ -154,6 +154,8 @@ def default_converter(defs, data, value):
     errors = {}
     converted_data = []
     if schema_type == list:
+        if not defs['required'] and value is None:  # in case the list itself is not required
+            return value	# design decision - in this case the key will be available in data with value of None
         for index, item in enumerate(value):
             try:
                 converted_data.append(convert(defs['schema'], item))
