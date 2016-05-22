@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import os
+import sys
+
 from setuptools import setup
 
 from microschema import __version__
+
+
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py register')
+    os.system('python setup.py sdist upload')
+    os.system('python setup.py bdist_wheel upload --universal')
+    sys.exit()
+
 
 def readme():
     with open('README.rst') as f:
