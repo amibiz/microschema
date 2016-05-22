@@ -79,9 +79,12 @@ def convert(schema, data, validated=False):
 
     # convert each field in the schema
     for name, defs in schema.iteritems():
-        field = data.get(name)
-
-        # convert field
+	if not defs.get('required', False) and name not in data:
+	    continue
+	
+	field = data.get(name)
+        
+	# convert field
         converter = defs.get('converter', default_converter)
         try:
             converted_data[name] = converter(defs, data, field)
@@ -154,8 +157,6 @@ def default_converter(defs, data, value):
     errors = {}
     converted_data = []
     if schema_type == list:
-        if not defs['required'] and value is None:  # in case the list itself is not required
-            return value	# design decision - in this case the key will be available in data with value of None
         for index, item in enumerate(value):
             try:
                 converted_data.append(convert(defs['schema'], item))
