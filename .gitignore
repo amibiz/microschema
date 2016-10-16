@@ -1,6 +1,9 @@
 # Compiled python modules.
 *.pyc
 
+# tox automation folder.
+.tox/
+
 # Virtualenv folder.
 .venv/
 
