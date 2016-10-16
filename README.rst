@@ -1,3 +1,7 @@
+.. image:: https://travis-ci.org/amibiz/microschema.svg?branch=develop
+    :target: https://travis-ci.org/amibiz/microschema
+
+
 MicroSchema
 -----------
 
