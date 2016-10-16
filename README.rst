@@ -18,3 +18,8 @@ Example:
     ... }
     >>> print microschema.validate(schema, data)
 
+
+Python Compatibility
+--------------------
+
+Currently, only python 2.7 is supported.
