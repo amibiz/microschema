@@ -24,7 +24,7 @@ def readme():
 setup(
     name='microschema',
     version=__version__,
-    description='MicroSchema is a schema validation framework for Python.',
+    description='MicroSchema is a schema validation library for Python.',
     long_description=readme(),
     classifiers=[
         'Development Status :: 1 - Planning',
