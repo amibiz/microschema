@@ -50,6 +50,12 @@ class TestValidation(TestCase):
         }
         self.assertEqual(cm.exception.message, message)
 
+    def test_missing_field(self):
+        # schema definition
+        schema = {'str': {'type': str}}
+        data = {}
+        self.assertEqual(validate(schema, data), data)
+
     def test_built_in_types(self):
         # schema definition
         schema = {
