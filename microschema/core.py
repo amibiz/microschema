@@ -45,7 +45,7 @@ class Validator(object):
             raise TypeError(message.format(name='data', type=instance_type))
 
         errors = {}
-        self._find_rouge_fields(errors)
+        self._report_rouge_fields(errors)
 
         # validate each field in the schema
         for name, defs in self._schema.iteritems():
@@ -73,7 +73,7 @@ class Validator(object):
 
         return self._data
 
-    def _find_rouge_fields(self, errors):
+    def _report_rouge_fields(self, errors):
         for field in self._get_rouge_fields():
             errors.update({field: messages['rogue']})
 
