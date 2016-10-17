@@ -38,29 +38,32 @@ class Validator(object):
 
         # validate each field in the schema
         for name, defs in self._schema.iteritems():
-            field = self._data.get(name)
-            required = defs.get('required', False)
-
-            # report missing required fields
-            if required and name not in self._data:
-                errors.update({name: messages['missing']})
-                continue
-
-            # skip missing fields
-            if name not in self._data:
-                continue
-
-            # validate field
-            validator = defs.get('validator', default_validator)
-            try:
-                validator(name, defs, self._data, field, context=self._context)
-            except ValidationError as e:
-                errors.update({name: e.message})
+            self._validate_field(name, defs, errors)
 
         if errors:
             raise ValidationError(errors)
 
         return self._data
+
+    def _validate_field(self, name, defs, errors):
+        field = self._data.get(name)
+        required = defs.get('required', False)
+
+        # report missing required fields
+        if required and name not in self._data:
+            errors.update({name: messages['missing']})
+            return
+
+        # skip missing fields
+        if name not in self._data:
+            return
+
+        # validate field
+        validator = defs.get('validator', default_validator)
+        try:
+            validator(name, defs, self._data, field, context=self._context)
+        except ValidationError as e:
+            errors.update({name: e.message})
 
     def _report_rouge_fields(self, errors):
         for field in self._get_rouge_fields():
