@@ -74,12 +74,14 @@ class Validator(object):
         return self._data
 
     def _find_rouge_fields(self, errors):
-        schema_fields = set(self._schema.keys())
         data_fields = set(self._data.keys())
 
-        rogue_fields = data_fields - schema_fields
+        rogue_fields = data_fields - self._get_schema_fields()
         for field in rogue_fields:
             errors.update({field: messages['rogue']})
+
+    def _get_schema_fields(self):
+        return set(self._schema.keys())
 
 
 def convert(schema, data, validated=False):
