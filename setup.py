@@ -27,7 +27,7 @@ setup(
     description='MicroSchema is a schema validation library for Python.',
     long_description=readme(),
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
