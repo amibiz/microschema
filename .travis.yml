@@ -7,7 +7,7 @@ python:
 install: pip install coveralls
 
 # command to run tests
-script: coverage run --source=microschema python setup.py test
+script: coverage run --source=microschema setup.py test
 
 # command to run after a successful build
 after_success: coveralls
