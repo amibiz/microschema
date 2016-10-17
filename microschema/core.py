@@ -45,13 +45,7 @@ class Validator(object):
             raise TypeError(message.format(name='data', type=instance_type))
 
         errors = {}
-        schema_fields = set(self._schema.keys())
-        data_fields = set(self._data.keys())
-
-        # find rogue fields
-        rogue_fields = data_fields - schema_fields
-        for field in rogue_fields:
-            errors.update({field: messages['rogue']})
+        self._find_rouge_fields(errors)
 
         # validate each field in the schema
         for name, defs in self._schema.iteritems():
@@ -78,6 +72,14 @@ class Validator(object):
             raise ValidationError(errors)
 
         return self._data
+
+    def _find_rouge_fields(self, errors):
+        schema_fields = set(self._schema.keys())
+        data_fields = set(self._data.keys())
+
+        rogue_fields = data_fields - schema_fields
+        for field in rogue_fields:
+            errors.update({field: messages['rogue']})
 
 
 def convert(schema, data, validated=False):
