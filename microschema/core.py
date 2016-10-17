@@ -47,10 +47,9 @@ class Validator(object):
 
     def _validate_field(self, name, defs, errors):
         field = self._data.get(name)
-        required = defs.get('required', False)
 
         if self._is_field_missing(name):
-            if required:
+            if self._is_field_required(defs):
                 errors.update({name: messages['missing']})
             return
 
@@ -60,6 +59,9 @@ class Validator(object):
             validator(name, defs, self._data, field, context=self._context)
         except ValidationError as e:
             errors.update({name: e.message})
+
+    def _is_field_required(self, defs):
+        return defs.get('required', False)
 
     def _is_field_missing(self, name):
         return name not in self._data
