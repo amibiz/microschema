@@ -1,0 +1,10 @@
+# .coveragerc to control coverage.py
+[run]
+source = microschema
+branch = True
+
+[report]
+sort = Miss
+
+[html]
+directory = htmlcov
