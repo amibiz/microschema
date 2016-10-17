@@ -21,51 +21,63 @@ messages = {
 
 def validate(schema, data, context=None):
     """Validates data based on a given schema."""
+    return Validator(schema, data, context).validate()
 
-    if not isinstance(schema, dict):
-        instance_type = type(schema).__name__
-        message = messages['input']
-        raise TypeError(message.format(name='schema', type=instance_type))
 
-    if not isinstance(data, dict):
-        instance_type = type(data).__name__
-        message = messages['input']
-        raise TypeError(message.format(name='data', type=instance_type))
+class Validator(object):
+    """Validator performs data validation.
+    """
 
-    errors = {}
-    schema_fields = set(schema.keys())
-    data_fields = set(data.keys())
+    def __init__(self, schema, data, context):
+        self._schema = schema
+        self._data = data
+        self._context = context
 
-    # find rogue fields
-    rogue_fields = data_fields - schema_fields
-    for field in rogue_fields:
-        errors.update({field: messages['rogue']})
+    def validate(self):
+        if not isinstance(self._schema, dict):
+            instance_type = type(self._schema).__name__
+            message = messages['input']
+            raise TypeError(message.format(name='schema', type=instance_type))
 
-    # validate each field in the schema
-    for name, defs in schema.iteritems():
-        field = data.get(name)
-        required = defs.get('required', False)
+        if not isinstance(self._data, dict):
+            instance_type = type(self._data).__name__
+            message = messages['input']
+            raise TypeError(message.format(name='data', type=instance_type))
 
-        # report missing required fields
-        if required and name not in data:
-            errors.update({name: messages['missing']})
-            continue
+        errors = {}
+        schema_fields = set(self._schema.keys())
+        data_fields = set(self._data.keys())
 
-        # skip missing fields
-        if name not in data:
-            continue
+        # find rogue fields
+        rogue_fields = data_fields - schema_fields
+        for field in rogue_fields:
+            errors.update({field: messages['rogue']})
 
-        # validate field
-        validator = defs.get('validator', default_validator)
-        try:
-            validator(name, defs, data, field, context=context)
-        except ValidationError as e:
-            errors.update({name: e.message})
+        # validate each field in the schema
+        for name, defs in self._schema.iteritems():
+            field = self._data.get(name)
+            required = defs.get('required', False)
 
-    if errors:
-        raise ValidationError(errors)
+            # report missing required fields
+            if required and name not in self._data:
+                errors.update({name: messages['missing']})
+                continue
 
-    return data
+            # skip missing fields
+            if name not in self._data:
+                continue
+
+            # validate field
+            validator = defs.get('validator', default_validator)
+            try:
+                validator(name, defs, self._data, field, context=self._context)
+            except ValidationError as e:
+                errors.update({name: e.message})
+
+        if errors:
+            raise ValidationError(errors)
+
+        return self._data
 
 
 def convert(schema, data, validated=False):
