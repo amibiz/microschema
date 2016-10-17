@@ -52,11 +52,6 @@ class Validator(object):
         if self._is_field_missing(name):
             if required:
                 errors.update({name: messages['missing']})
-                return
-            else:
-                return
-
-        if self._is_field_missing(name):
             return
 
         # validate field
