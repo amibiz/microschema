@@ -49,12 +49,13 @@ class Validator(object):
         field = self._data.get(name)
         required = defs.get('required', False)
 
-        # report missing required fields
-        if required and self._is_field_missing(name):
-            errors.update({name: messages['missing']})
-            return
+        if self._is_field_missing(name):
+            if required:
+                errors.update({name: messages['missing']})
+                return
+            else:
+                return
 
-        # skip missing fields
         if self._is_field_missing(name):
             return
 
