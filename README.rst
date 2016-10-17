@@ -1,6 +1,8 @@
 .. image:: https://travis-ci.org/amibiz/microschema.svg?branch=develop
     :target: https://travis-ci.org/amibiz/microschema
 
+.. image:: https://coveralls.io/repos/github/amibiz/microschema/badge.svg
+    :target: https://coveralls.io/github/amibiz/microschema
 
 MicroSchema
 -----------
