@@ -235,20 +235,21 @@ class TestConversion(TestCase):
         self.assertEqual(convert(schema, data, validated=True), data)
 
     def test_with_non_required_list(self):
-	schema = {
-	    'non_required_list': {
-	        'type': list,
-	        'required': False,
-	        'schema': {'field1': {'type': int},
-			   'field2': {'type': unicode}
-                          }
-		}
-    	}
-	data = {}
-	self.assertEqual(convert(schema, data, validated=True), data)
-	data = {'non_required_list': []}
+        schema = {
+            'non_required_list': {
+                'type': list,
+                'required': False,
+                'schema': {
+                    'field1': {'type': int},
+                    'field2': {'type': unicode},
+                },
+            },
+        }
+        data = {}
         self.assertEqual(convert(schema, data, validated=True), data)
-	data = {'non_required_list': [{'field1': 1, 'field2': u'value'}]}
+        data = {'non_required_list': []}
+        self.assertEqual(convert(schema, data, validated=True), data)
+        data = {'non_required_list': [{'field1': 1, 'field2': u'value'}]}
         self.assertEqual(convert(schema, data, validated=True), data)
 
     def test_custom_converter(self):
