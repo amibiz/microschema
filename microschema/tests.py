@@ -14,7 +14,6 @@ from microschema import (
 
 # TODO: test required field
 # TODO: test when inferred value is missing
-# TODO: test compound type
 
 class TestValidation(TestCase):
     def test_empty(self):
@@ -112,6 +111,34 @@ class TestValidation(TestCase):
             'float': u'Field must be a float instance, got: int.',
             'bool': u'Field must be a bool instance, got: str.',
             'none': u'Field must be None, got: str.',
+        }
+        self.assertEqual(cm.exception.message, message)
+
+    def test_compound_type(self):
+        # schema definition
+        schema = {
+            'names': {'type': list, 'required': True, 'compound_type': str},
+        }
+
+        # empty list
+        data = {'names': []}
+        self.assertEqual(validate(schema, data), data)
+
+        # lists with valid types
+        data = {'names': ['foo']}
+        self.assertEqual(validate(schema, data), data)
+        data = {'names': ['foo', 'bar']}
+        self.assertEqual(validate(schema, data), data)
+
+        data = {'names': [1, [], {}]}
+        with self.assertRaises(ValidationError) as cm:
+            validate(schema, data)
+        message = {
+            'names': {
+                0: u'Field must be a str instance, got: int.',
+                1: u'Field must be a str instance, got: list.',
+                2: u'Field must be a str instance, got: dict.',
+            },
         }
         self.assertEqual(cm.exception.message, message)
 
