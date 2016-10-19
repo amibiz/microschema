@@ -24,6 +24,14 @@ class TestValidation(TestCase):
         message = u'input schema must be a dictionary instance, got: str.'
         self.assertEqual(cm.exception.message, message)
 
+    def test_invalid_data(self):
+        schema = {}
+        data = 'this is not a dict'
+        with self.assertRaises(TypeError) as cm:
+            validate(schema, data)
+        message = u'input data must be a dictionary instance, got: str.'
+        self.assertEqual(cm.exception.message, message)
+
     def test_empty(self):
         schema = {}
         data = {}
