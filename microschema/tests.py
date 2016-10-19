@@ -16,6 +16,14 @@ from microschema import (
 # TODO: test when inferred value is missing
 
 class TestValidation(TestCase):
+    def test_invalid_schema(self):
+        schema = 'this is not a dict'
+        data = {}
+        with self.assertRaises(TypeError) as cm:
+            validate(schema, data)
+        message = u'input schema must be a dictionary instance, got: str.'
+        self.assertEqual(cm.exception.message, message)
+
     def test_empty(self):
         schema = {}
         data = {}
