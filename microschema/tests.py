@@ -124,7 +124,7 @@ class TestValidation(TestCase):
         data = {'names': []}
         self.assertEqual(validate(schema, data), data)
 
-        # lists with valid types
+        # lists with valid values
         data = {'names': ['foo']}
         self.assertEqual(validate(schema, data), data)
         data = {'names': ['foo', 'bar']}
@@ -141,6 +141,43 @@ class TestValidation(TestCase):
             },
         }
         self.assertEqual(cm.exception.message, message)
+
+    def test_list(self):
+        # schema definition
+        schema = {
+            'names': {'type': list, 'required': True},
+        }
+
+        # empty list
+        data = {'names': []}
+        self.assertEqual(validate(schema, data), data)
+
+        # missing schema definition
+        data = {'names': ['foo']}
+        with self.assertRaises(ValidationError) as cm:
+            validate(schema, data)
+        message = {'names': {0: u'Missing schema definition.'}}
+        self.assertEqual(cm.exception.message, message)
+
+    def test_list_with_schema(self):
+        # schema definition
+        schema = {
+            'people': {
+                'type': list,
+                'required': True,
+                'schema': {'name': {'type': str}},
+            },
+        }
+
+        # empty list
+        data = {'people': []}
+        self.assertEqual(validate(schema, data), data)
+
+        # lists with valid values
+        data = {'people': [{'name': 'foo'}]}
+        self.assertEqual(validate(schema, data), data)
+        data = {'people': [{'name': 'foo'}, {'name': 'bar'}]}
+        self.assertEqual(validate(schema, data), data)
 
 
 class TestCustomValidator(TestCase):
