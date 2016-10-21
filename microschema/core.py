@@ -14,7 +14,6 @@ messages = {
     'input': u'input {name} must be a dictionary instance, got: {type}.',
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
-    'none': u'Field must be None, got: {field_type}.',
     'schema': u'Missing schema definition.',
 }
 
@@ -150,7 +149,7 @@ class DefaultValidator(object):
 
         if schema_type is None:
             if self._value is not None:
-                message = messages['none'].format(
+                message = u'Field must be None, got: {field_type}.'.format(
                     field_type=type(self._value).__name__,
                 )
                 raise ValidationError(message)
