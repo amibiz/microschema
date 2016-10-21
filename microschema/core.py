@@ -154,17 +154,14 @@ class DefaultValidator(object):
         if schema_type == dict:
             self._validate_dict()
 
-        errors = {}
         if schema_type == list:
-            compound_type = self._defs.get('compound_type')
-            self._validate_list(compound_type, errors)
-
-        if errors:
-            raise ValidationError(errors)
+            self._validate_list()
 
         return self._value
 
-    def _validate_list(self, compound_type, errors):
+    def _validate_list(self):
+        compound_type = self._defs.get('compound_type')
+        errors = {}
         for index, item in enumerate(self._value):
             try:
                 if compound_type is not None:
@@ -177,6 +174,9 @@ class DefaultValidator(object):
                 errors.update({index: messages['schema']})
             except (TypeError, ValidationError) as e:
                 errors.update({index: e.message})
+
+        if errors:
+            raise ValidationError(errors)
 
     def _validate_dict(self):
         validate(self._defs['schema'], self._value)
