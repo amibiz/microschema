@@ -134,7 +134,6 @@ class DefaultValidator(object):
 
     def validate(self):
         schema_type = self._defs['type']
-        compound_type = self._defs.get('compound_type')
 
         if schema_type is None:
             if self._value is not None:
@@ -157,6 +156,7 @@ class DefaultValidator(object):
 
         errors = {}
         if schema_type == list:
+            compound_type = self._defs.get('compound_type')
             self._validate_list(compound_type, errors)
 
         if errors:
