@@ -5,6 +5,7 @@ from __future__ import absolute_import
 class ValidationError(ValueError):
     pass
 
+
 class ConversionError(ValueError):
     pass
 
@@ -13,10 +14,22 @@ messages = {
     'input': u'input {name} must be a dictionary instance, got: {type}.',
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
-    'field': u'Field must be a {schema_type} instance, got: {field_type}.',
     'none': u'Field must be None, got: {field_type}.',
     'schema': u'Missing schema definition.',
 }
+
+
+class InvalidFieldType(ValidationError):
+
+    def __init__(self, schema_type, field_type):
+        self._schema_type = schema_type
+        self._field_type = field_type
+        super(InvalidFieldType, self).__init__(unicode(str(self)))
+
+    def __str__(self):
+        return u'Field must be a {} instance, got: {}.'.format(
+            self._schema_type.__name__, self._field_type.__name__
+        )
 
 
 def validate(schema, data, context=None):
@@ -145,11 +158,7 @@ class DefaultValidator(object):
                 return self._value
 
         if not isinstance(self._value, schema_type):
-            message = messages['field'].format(
-                schema_type=schema_type.__name__,
-                field_type=type(self._value).__name__,
-            )
-            raise ValidationError(message)
+            raise InvalidFieldType(schema_type, type(self._value))
 
         if schema_type == dict:
             self._validate_dict()
