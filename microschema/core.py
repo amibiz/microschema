@@ -147,7 +147,7 @@ class DefaultValidator(object):
     def validate(self):
         schema_type = self._defs['type']
 
-        if schema_type is None:
+        if self._is_none_type(schema_type):
             if self._value is not None:
                 message = u'Field must be None, got: {field_type}.'.format(
                     field_type=type(self._value).__name__,
@@ -166,6 +166,9 @@ class DefaultValidator(object):
             self._validate_list()
 
         return self._value
+
+    def _is_none_type(self, schema_type):
+        return schema_type is None
 
     def _validate_list(self):
         compound_type = self._defs.get('compound_type')
