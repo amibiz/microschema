@@ -121,47 +121,59 @@ def convert(schema, data, validated=False):
 
 
 def default_validator(name, defs, data, value, context=None):
-    schema_type = defs['type']
-    compound_type = defs.get('compound_type')
+    return DefaultValidator(name, defs, data, value, context=None).validate()
 
-    if schema_type is None:
-        if value is not None:
-            message = messages['none'].format(
-                field_type=type(value).__name__,
+
+class DefaultValidator(object):
+    def __init__(self, name, defs, data, value, context=None):
+        self._name = name
+        self._defs = defs
+        self._data = data
+        self._value = value
+        self._context = context
+
+    def validate(self):
+        schema_type = self._defs['type']
+        compound_type = self._defs.get('compound_type')
+
+        if schema_type is None:
+            if self._value is not None:
+                message = messages['none'].format(
+                    field_type=type(self._value).__name__,
+                )
+                raise ValidationError(message)
+            else:
+                return self._value
+
+        if not isinstance(self._value, schema_type):
+            message = messages['field'].format(
+                schema_type=schema_type.__name__,
+                field_type=type(self._value).__name__,
             )
             raise ValidationError(message)
-        else:
-            return value
 
-    if not isinstance(value, schema_type):
-        message = messages['field'].format(
-            schema_type=schema_type.__name__,
-            field_type=type(value).__name__,
-        )
-        raise ValidationError(message)
+        if schema_type == dict:
+            validate(self._defs['schema'], self._value)
 
-    if schema_type == dict:
-        validate(defs['schema'], value)
+        errors = {}
+        if schema_type == list:
+            for index, item in enumerate(self._value):
+                try:
+                    if compound_type is not None:
+                        compound_defs = {'type': compound_type}
+                        default_validator(index, compound_defs, self._value, item)
+                        continue
+                    schema = self._defs['schema']
+                    validate(schema, item)
+                except KeyError as e:
+                    errors.update({index: messages['schema']})
+                except (TypeError, ValidationError) as e:
+                    errors.update({index: e.message})
 
-    errors = {}
-    if schema_type == list:
-        for index, item in enumerate(value):
-            try:
-                if compound_type is not None:
-                    compound_defs = {'type': compound_type}
-                    default_validator(index, compound_defs, value, item)
-                    continue
-                schema = defs['schema']
-                validate(schema, item)
-            except KeyError as e:
-                errors.update({index: messages['schema']})
-            except (TypeError, ValidationError) as e:
-                errors.update({index: e.message})
+        if errors:
+            raise ValidationError(errors)
 
-    if errors:
-        raise ValidationError(errors)
-
-    return value
+        return self._value
 
 
 def default_converter(defs, data, value):
