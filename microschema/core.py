@@ -147,14 +147,9 @@ class DefaultValidator(object):
     def validate(self):
         schema_type = self._defs['type']
 
-        if self._is_none_type(schema_type):
-            if self._value is not None:
-                message = u'Field must be None, got: {field_type}.'.format(
-                    field_type=type(self._value).__name__,
-                )
-                raise ValidationError(message)
-            else:
-                return self._value
+        valid = self._validate_none_type(schema_type)
+        if valid:
+            return self._value
 
         self._validate_type(schema_type)
 
@@ -165,6 +160,17 @@ class DefaultValidator(object):
             self._validate_list()
 
         return self._value
+
+    def _validate_none_type(self, schema_type):
+        if self._is_none_type(schema_type):
+            if self._value is not None:
+                message = u'Field must be None, got: {field_type}.'.format(
+                    field_type=type(self._value).__name__,
+                )
+                raise ValidationError(message)
+            else:
+                return True
+        return False
 
     def _is_none_type(self, schema_type):
         return schema_type is None
