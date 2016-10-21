@@ -153,7 +153,7 @@ class DefaultValidator(object):
             raise ValidationError(message)
 
         if schema_type == dict:
-            validate(self._defs['schema'], self._value)
+            self._validate_dict()
 
         errors = {}
         if schema_type == list:
@@ -174,6 +174,9 @@ class DefaultValidator(object):
             raise ValidationError(errors)
 
         return self._value
+
+    def _validate_dict(self):
+        validate(self._defs['schema'], self._value)
 
 
 def default_converter(defs, data, value):
