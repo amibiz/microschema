@@ -172,7 +172,7 @@ class DefaultValidator(object):
         return False
 
     def _is_none_type(self, schema_type):
-        return schema_type is None
+        return isinstance(schema_type, type(None))
 
     def _validate_type(self):
         if not isinstance(self._value, self._defs['type']):
