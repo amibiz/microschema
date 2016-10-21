@@ -147,8 +147,7 @@ class DefaultValidator(object):
     def validate(self):
         schema_type = self._defs['type']
 
-        valid = self._validate_none_type(schema_type)
-        if valid:
+        if self._validate_none_type(schema_type):
             return self._value
 
         self._validate_type(schema_type)
