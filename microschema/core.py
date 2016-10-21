@@ -157,23 +157,26 @@ class DefaultValidator(object):
 
         errors = {}
         if schema_type == list:
-            for index, item in enumerate(self._value):
-                try:
-                    if compound_type is not None:
-                        compound_defs = {'type': compound_type}
-                        default_validator(index, compound_defs, self._value, item)
-                        continue
-                    schema = self._defs['schema']
-                    validate(schema, item)
-                except KeyError as e:
-                    errors.update({index: messages['schema']})
-                except (TypeError, ValidationError) as e:
-                    errors.update({index: e.message})
+            self._validate_list(compound_type, errors)
 
         if errors:
             raise ValidationError(errors)
 
         return self._value
+
+    def _validate_list(self, compound_type, errors):
+        for index, item in enumerate(self._value):
+            try:
+                if compound_type is not None:
+                    compound_defs = {'type': compound_type}
+                    default_validator(index, compound_defs, self._value, item)
+                    continue
+                schema = self._defs['schema']
+                validate(schema, item)
+            except KeyError as e:
+                errors.update({index: messages['schema']})
+            except (TypeError, ValidationError) as e:
+                errors.update({index: e.message})
 
     def _validate_dict(self):
         validate(self._defs['schema'], self._value)
