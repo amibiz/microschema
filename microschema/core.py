@@ -18,12 +18,12 @@ messages = {
 }
 
 
-class InvalidFieldType(ValidationError):
+class InvalidFieldError(ValidationError):
 
     def __init__(self, schema_type, field_type):
         self._schema_type = schema_type
         self._field_type = field_type
-        super(InvalidFieldType, self).__init__(unicode(str(self)))
+        super(InvalidFieldError, self).__init__(unicode(str(self)))
 
     def __str__(self):
         if self._schema_type is type(None):
@@ -136,7 +136,7 @@ class FieldValidator(object):
 
     def _check_field_type(self):
         if not isinstance(self._value, self._schema_type):
-            raise InvalidFieldType(self._schema_type, type(self._value))
+            raise InvalidFieldError(self._schema_type, type(self._value))
 
 
 class NoneFieldValidator(FieldValidator):
