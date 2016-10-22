@@ -150,9 +150,6 @@ class DefaultValidator(object):
         self._context = context
 
     def validate(self):
-        if self._validate_none_type():
-            return
-
         self._validate_type()
 
         schema_type = self._defs['type']
@@ -163,18 +160,16 @@ class DefaultValidator(object):
         if schema_type == list:
             self._validate_list()
 
-    def _validate_none_type(self):
-        if self._is_none_type():
-            if self._value is not None:
-                raise InvalidFieldType(self._defs['type'], type(self._value))
-            else:
-                return True
-        return False
-
     def _is_none_type(self):
         return isinstance(self._defs['type'], type(None))
 
     def _validate_type(self):
+        if self._is_none_type():
+            if self._value is not None:
+                raise InvalidFieldType(self._defs['type'], type(self._value))
+            else:
+                return
+
         if not isinstance(self._value, self._defs['type']):
             raise InvalidFieldType(self._defs['type'], type(self._value))
 
