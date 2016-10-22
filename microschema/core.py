@@ -113,6 +113,8 @@ def field_validator(name, defs, data, value, context=None):
         DictFieldValidator(name, defs, data, value, context).validate()
     elif defs['type'] == list:
         ListFieldValidator(name, defs, data, value, context).validate()
+    elif defs['type'] is None:
+        NoneFieldValidator(name, defs, data, value, context).validate()
     else:
         FieldValidator(name, defs, data, value, context).validate()
 
@@ -127,8 +129,6 @@ class FieldValidator(object):
 
     @property
     def _schema_type(self):
-        if isinstance(self._defs['type'], type(None)):
-            return type(None)
         return self._defs['type']
 
     def validate(self):
@@ -137,6 +137,15 @@ class FieldValidator(object):
     def _check_field_type(self):
         if not isinstance(self._value, self._schema_type):
             raise InvalidFieldType(self._schema_type, type(self._value))
+
+
+class NoneFieldValidator(FieldValidator):
+    def __init__(self, *args, **kwargs):
+        super(NoneFieldValidator, self).__init__(*args, **kwargs)
+
+    @property
+    def _schema_type(self):
+        return type(None)
 
 
 class ListFieldValidator(FieldValidator):
