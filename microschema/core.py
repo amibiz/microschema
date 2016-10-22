@@ -127,7 +127,7 @@ class FieldValidator(object):
         return self._defs['type']
 
     def validate(self):
-        self._validate_type()
+        self._check_field_type()
 
         if self._schema_type == dict:
             self._validate_dict()
@@ -135,12 +135,9 @@ class FieldValidator(object):
         if self._schema_type == list:
             self._validate_list()
 
-    def _validate_type(self):
-        if not self._check_field_type(self._schema_type):
+    def _check_field_type(self):
+        if not isinstance(self._value, self._schema_type):
             raise InvalidFieldType(self._schema_type, type(self._value))
-
-    def _check_field_type(self, field_type):
-        return isinstance(self._value, field_type)
 
     def _validate_list(self):
         compound_type = self._defs.get('compound_type')
