@@ -162,16 +162,19 @@ class DefaultValidator(object):
 
     def _validate_type(self):
         if isinstance(self._get_schema_type(), type(None)):
-            if not isinstance(self._value, type(None)):
+            if not self._check_field_type(type(None)):
                 raise InvalidFieldType(self._get_schema_type(), type(self._value))
             else:
                 return
 
-        if not isinstance(self._value, self._get_schema_type()):
+        if not self._check_field_type(self._get_schema_type()):
             raise InvalidFieldType(self._get_schema_type(), type(self._value))
 
     def _get_schema_type(self):
         return self._defs['type']
+
+    def _check_field_type(self, field_type):
+        return isinstance(self._value, field_type)
 
     def _validate_list(self):
         compound_type = self._defs.get('compound_type')
