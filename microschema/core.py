@@ -25,14 +25,12 @@ class InvalidFieldType(ValidationError):
         self._field_type = field_type
         super(InvalidFieldType, self).__init__(unicode(str(self)))
 
-    @staticmethod
-    def raise_none_type_validation_error(value):
-        message = u'Field must be None, got: {field_type}.'.format(
-            field_type=type(value).__name__,
-        )
-        raise ValidationError(message)
-
     def __str__(self):
+        if isinstance(self._schema_type, type(None)):
+            return u'Field must be None, got: {field_type}.'.format(
+                field_type=self._field_type.__name__,
+            )
+
         return u'Field must be a {} instance, got: {}.'.format(
             self._schema_type.__name__, self._field_type.__name__
         )
@@ -170,7 +168,7 @@ class DefaultValidator(object):
     def _validate_none_type(self):
         if self._is_none_type():
             if self._value is not None:
-                InvalidFieldType.raise_none_type_validation_error(self._value)
+                raise InvalidFieldType(self._defs['type'], type(self._value))
             else:
                 return True
         return False
