@@ -38,8 +38,8 @@ class InvalidFieldError(ValidationError):
 
     def __str__(self):
         if self._schema_type is type(None):
-            return u'Field must be None, got: {field_type}.'.format(
-                field_type=self._field_type.__name__,
+            return u'Field must be None, got: {}.'.format(
+                self._field_type.__name__
             )
 
         return u'Field must be a {} instance, got: {}.'.format(
