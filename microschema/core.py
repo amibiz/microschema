@@ -163,13 +163,16 @@ class DefaultValidator(object):
     def _validate_none_type(self):
         if self._is_none_type():
             if self._value is not None:
-                message = u'Field must be None, got: {field_type}.'.format(
-                    field_type=type(self._value).__name__,
-                )
-                raise ValidationError(message)
+                self._raise_none_type_validation_error()
             else:
                 return True
         return False
+
+    def _raise_none_type_validation_error(self):
+        message = u'Field must be None, got: {field_type}.'.format(
+            field_type=type(self._value).__name__,
+        )
+        raise ValidationError(message)
 
     def _is_none_type(self):
         return isinstance(self._defs['type'], type(None))
