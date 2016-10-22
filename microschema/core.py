@@ -18,6 +18,17 @@ messages = {
 }
 
 
+class SchemaError(TypeError):
+    def __init__(self, schema_type):
+        self._schema_type = schema_type
+        super(SchemaError, self).__init__(unicode(str(self)))
+
+    def __str__(self):
+        return u'input schema must be a dictionary instance, got: {}.' .format(
+            self._schema_type.__name__
+        )
+
+
 class InvalidFieldError(ValidationError):
 
     def __init__(self, schema_type, field_type):
@@ -52,9 +63,7 @@ class Validator(object):
 
     def validate(self):
         if not isinstance(self._schema, dict):
-            instance_type = type(self._schema).__name__
-            message = messages['input']
-            raise TypeError(message.format(name='schema', type=instance_type))
+            raise SchemaError(type(self._schema))
 
         if not isinstance(self._data, dict):
             instance_type = type(self._data).__name__
