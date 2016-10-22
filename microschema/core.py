@@ -152,12 +152,10 @@ class DefaultValidator(object):
     def validate(self):
         self._validate_type()
 
-        schema_type = self._get_schema_type()
-
-        if schema_type == dict:
+        if self._get_schema_type() == dict:
             self._validate_dict()
 
-        if schema_type == list:
+        if self._get_schema_type() == list:
             self._validate_list()
 
     def _validate_type(self):
