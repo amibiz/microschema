@@ -11,7 +11,6 @@ class ConversionError(ValueError):
 
 
 messages = {
-    'input': u'input {name} must be a dictionary instance, got: {type}.',
     'rogue': u'Rogue field.',
     'missing': u'Missing required field.',
     'schema': u'Missing schema definition.',
@@ -26,6 +25,17 @@ class SchemaError(TypeError):
     def __str__(self):
         return u'input schema must be a dictionary instance, got: {}.' .format(
             self._schema_type.__name__
+        )
+
+
+class DataError(TypeError):
+    def __init__(self, data_type):
+        self.data_type = data_type
+        super(DataError, self).__init__(unicode(str(self)))
+
+    def __str__(self):
+        return u'input data must be a dictionary instance, got: {}.' .format(
+            self.data_type.__name__
         )
 
 
@@ -66,9 +76,7 @@ class Validator(object):
             raise SchemaError(type(self._schema))
 
         if not isinstance(self._data, dict):
-            instance_type = type(self._data).__name__
-            message = messages['input']
-            raise TypeError(message.format(name='data', type=instance_type))
+            raise DataError(type(self._data))
 
         errors = {}
         self._report_rouge_fields(errors)
