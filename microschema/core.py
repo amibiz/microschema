@@ -111,6 +111,8 @@ class Validator(object):
 def field_validator(name, defs, data, value, context=None):
     if defs['type'] == dict:
         DictFieldValidator(name, defs, data, value, context).validate()
+    elif defs['type'] == list:
+        ListFieldValidator(name, defs, data, value, context).validate()
     else:
         FieldValidator(name, defs, data, value, context).validate()
 
@@ -132,14 +134,22 @@ class FieldValidator(object):
     def validate(self):
         self._check_field_type()
 
-        if self._schema_type == list:
-            self._validate_list()
-
     def _check_field_type(self):
         if not isinstance(self._value, self._schema_type):
             raise InvalidFieldType(self._schema_type, type(self._value))
 
-    def _validate_list(self):
+
+class ListFieldValidator(FieldValidator):
+    def __init__(self, *args, **kwargs):
+        super(ListFieldValidator, self).__init__(*args, **kwargs)
+
+    @property
+    def _schema_type(self):
+        return list
+
+    def validate(self):
+        self._check_field_type()
+
         compound_type = self._defs.get('compound_type')
         errors = {}
         for index, item in enumerate(self._value):
