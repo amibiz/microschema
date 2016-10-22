@@ -152,7 +152,7 @@ class DefaultValidator(object):
     def validate(self):
         self._validate_type()
 
-        schema_type = self._defs['type']
+        schema_type = self._get_schema_type()
 
         if schema_type == dict:
             self._validate_dict()
@@ -161,14 +161,17 @@ class DefaultValidator(object):
             self._validate_list()
 
     def _validate_type(self):
-        if isinstance(self._defs['type'], type(None)):
+        if isinstance(self._get_schema_type(), type(None)):
             if self._value is not None:
-                raise InvalidFieldType(self._defs['type'], type(self._value))
+                raise InvalidFieldType(self._get_schema_type(), type(self._value))
             else:
                 return
 
-        if not isinstance(self._value, self._defs['type']):
-            raise InvalidFieldType(self._defs['type'], type(self._value))
+        if not isinstance(self._value, self._get_schema_type()):
+            raise InvalidFieldType(self._get_schema_type(), type(self._value))
+
+    def _get_schema_type(self):
+        return self._defs['type']
 
     def _validate_list(self):
         compound_type = self._defs.get('compound_type')
