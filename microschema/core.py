@@ -26,7 +26,7 @@ class InvalidFieldType(ValidationError):
         super(InvalidFieldType, self).__init__(unicode(str(self)))
 
     def __str__(self):
-        if isinstance(self._schema_type, type(None)):
+        if self._schema_type is None:
             return u'Field must be None, got: {field_type}.'.format(
                 field_type=self._field_type.__name__,
             )
