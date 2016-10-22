@@ -82,7 +82,7 @@ class Validator(object):
             return
 
         # validate field
-        validator = defs.get('validator', default_validator)
+        validator = defs.get('validator', field_validator)
         try:
             validator(name, defs, self._data, field, context=self._context)
         except ValidationError as e:
@@ -108,7 +108,7 @@ class Validator(object):
         return self._get_data_fields() - self._get_schema_fields()
 
 
-def default_validator(name, defs, data, value, context=None):
+def field_validator(name, defs, data, value, context=None):
     FieldValidator(name, defs, data, value, context).validate()
 
 
@@ -149,7 +149,7 @@ class FieldValidator(object):
             try:
                 if compound_type is not None:
                     compound_defs = {'type': compound_type}
-                    default_validator(index, compound_defs, self._value, item)
+                    field_validator(index, compound_defs, self._value, item)
                     continue
                 schema = self._defs['schema']
                 validate(schema, item)
