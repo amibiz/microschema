@@ -3,12 +3,7 @@ from __future__ import absolute_import
 
 
 class ValidationError(ValueError):
-    @classmethod
-    def raise_none_type_validation_error(cls, value):
-        message = u'Field must be None, got: {field_type}.'.format(
-            field_type=type(value).__name__,
-        )
-        raise cls(message)
+    pass
 
 
 class ConversionError(ValueError):
@@ -29,6 +24,13 @@ class InvalidFieldType(ValidationError):
         self._schema_type = schema_type
         self._field_type = field_type
         super(InvalidFieldType, self).__init__(unicode(str(self)))
+
+    @staticmethod
+    def raise_none_type_validation_error(value):
+        message = u'Field must be None, got: {field_type}.'.format(
+            field_type=type(value).__name__,
+        )
+        raise ValidationError(message)
 
     def __str__(self):
         return u'Field must be a {} instance, got: {}.'.format(
@@ -168,7 +170,7 @@ class DefaultValidator(object):
     def _validate_none_type(self):
         if self._is_none_type():
             if self._value is not None:
-                ValidationError.raise_none_type_validation_error(self._value)
+                InvalidFieldType.raise_none_type_validation_error(self._value)
             else:
                 return True
         return False
