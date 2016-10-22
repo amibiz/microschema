@@ -161,17 +161,14 @@ class DefaultValidator(object):
             self._validate_list()
 
     def _validate_type(self):
-        schema_type = self._do_get_schema_type()
-
-        if not self._check_field_type(schema_type):
+        if not self._check_field_type(self._do_get_schema_type()):
             raise InvalidFieldType(self._get_schema_type(), type(self._value))
 
     def _do_get_schema_type(self):
         if not isinstance(self._get_schema_type(), type(None)):
-            schema_type = self._get_schema_type()
+            return self._get_schema_type()
         else:
-            schema_type = type(None)
-        return schema_type
+            return type(None)
 
     def _get_schema_type(self):
         return self._defs['type']
