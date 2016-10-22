@@ -138,7 +138,7 @@ def convert(schema, data, validated=False):
 
 
 def default_validator(name, defs, data, value, context=None):
-    return DefaultValidator(name, defs, data, value, context=None).validate()
+    DefaultValidator(name, defs, data, value, context).validate()
 
 
 class DefaultValidator(object):
@@ -151,7 +151,7 @@ class DefaultValidator(object):
 
     def validate(self):
         if self._validate_none_type():
-            return self._value
+            return
 
         self._validate_type()
 
@@ -162,8 +162,6 @@ class DefaultValidator(object):
 
         if schema_type == list:
             self._validate_list()
-
-        return self._value
 
     def _validate_none_type(self):
         if self._is_none_type():
