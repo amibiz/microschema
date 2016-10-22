@@ -108,35 +108,6 @@ class Validator(object):
         return self._get_data_fields() - self._get_schema_fields()
 
 
-def convert(schema, data, validated=False):
-    """Convert data based on a given schema."""
-
-    if not validated:
-        validate(schema, data)
-
-    errors = {}
-    converted_data = {}
-
-    # convert each field in the schema
-    for name, defs in schema.iteritems():
-        if not defs.get('required', False) and name not in data:
-            continue
-
-        field = data.get(name)
-
-        # convert field
-        converter = defs.get('converter', default_converter)
-        try:
-            converted_data[name] = converter(defs, data, field)
-        except ConversionError as e:
-            errors.update({name: e.message})
-
-    if errors:
-        raise ConversionError(errors)
-
-    return converted_data
-
-
 def default_validator(name, defs, data, value, context=None):
     DefaultValidator(name, defs, data, value, context).validate()
 
@@ -192,6 +163,35 @@ class DefaultValidator(object):
 
     def _validate_dict(self):
         validate(self._defs['schema'], self._value)
+
+
+def convert(schema, data, validated=False):
+    """Convert data based on a given schema."""
+
+    if not validated:
+        validate(schema, data)
+
+    errors = {}
+    converted_data = {}
+
+    # convert each field in the schema
+    for name, defs in schema.iteritems():
+        if not defs.get('required', False) and name not in data:
+            continue
+
+        field = data.get(name)
+
+        # convert field
+        converter = defs.get('converter', default_converter)
+        try:
+            converted_data[name] = converter(defs, data, field)
+        except ConversionError as e:
+            errors.update({name: e.message})
+
+    if errors:
+        raise ConversionError(errors)
+
+    return converted_data
 
 
 def default_converter(defs, data, value):
