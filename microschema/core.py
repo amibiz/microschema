@@ -109,7 +109,10 @@ class Validator(object):
 
 
 def field_validator(name, defs, data, value, context=None):
-    FieldValidator(name, defs, data, value, context).validate()
+    if defs['type'] == dict:
+        DictFieldValidator(name, defs, data, value, context).validate()
+    else:
+        FieldValidator(name, defs, data, value, context).validate()
 
 
 class FieldValidator(object):
@@ -128,9 +131,6 @@ class FieldValidator(object):
 
     def validate(self):
         self._check_field_type()
-
-        if self._schema_type == dict:
-            self._validate_dict()
 
         if self._schema_type == list:
             self._validate_list()
@@ -158,7 +158,17 @@ class FieldValidator(object):
         if errors:
             raise ValidationError(errors)
 
-    def _validate_dict(self):
+
+class DictFieldValidator(FieldValidator):
+    def __init__(self, *args, **kwargs):
+        super(DictFieldValidator, self).__init__(*args, **kwargs)
+
+    @property
+    def _schema_type(self):
+        return dict
+
+    def validate(self):
+        self._check_field_type()
         validate(self._defs['schema'], self._value)
 
 
