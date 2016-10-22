@@ -149,24 +149,24 @@ class DefaultValidator(object):
         self._value = value
         self._context = context
 
+    @property
+    def _schema_type(self):
+        if isinstance(self._defs['type'], type(None)):
+            return type(None)
+        return self._defs['type']
+
     def validate(self):
         self._validate_type()
 
-        if self._get_schema_type() == dict:
+        if self._schema_type == dict:
             self._validate_dict()
 
-        if self._get_schema_type() == list:
+        if self._schema_type == list:
             self._validate_list()
 
     def _validate_type(self):
-        if not self._check_field_type(self._get_schema_type()):
-            raise InvalidFieldType(self._get_schema_type(), type(self._value))
-
-    def _get_schema_type(self):
-        if isinstance(self._defs['type'], type(None)):
-            return type(None)
-
-        return self._defs['type']
+        if not self._check_field_type(self._schema_type):
+            raise InvalidFieldType(self._schema_type, type(self._value))
 
     def _check_field_type(self, field_type):
         return isinstance(self._value, field_type)
