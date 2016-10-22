@@ -109,10 +109,10 @@ class Validator(object):
 
 
 def default_validator(name, defs, data, value, context=None):
-    DefaultValidator(name, defs, data, value, context).validate()
+    FieldValidator(name, defs, data, value, context).validate()
 
 
-class DefaultValidator(object):
+class FieldValidator(object):
     def __init__(self, name, defs, data, value, context=None):
         self._name = name
         self._defs = defs
