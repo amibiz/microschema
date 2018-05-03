@@ -18,10 +18,10 @@ Example:
     ...     'username': 'foobar',
     ...     'score': 10000,
     ... }
-    >>> print microschema.validate(schema, data)
+    >>> print(microschema.validate(schema, data))
 
 
 Python Compatibility
 --------------------
 
-Currently, only python 2.7 is supported.
+Python 2.7 and 3.3+ are supported.

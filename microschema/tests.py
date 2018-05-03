@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import datetime
+import sys
 from unittest import TestCase
 
 from microschema import (
@@ -10,6 +11,11 @@ from microschema import (
     ValidationError,
     ConversionError,
 )
+
+if sys.version_info >= (3,):
+    # python 3 types:
+    unicode = type(u'')
+    long = type(10000000000000000000)
 
 
 # TODO: test required field
@@ -29,7 +35,7 @@ class TestValidation(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'str': u'Rogue field.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
         # non-empty schema
         schema = {'str': {'type': str}}
@@ -37,7 +43,7 @@ class TestValidation(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'int': u'Rogue field.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
         # multi rogue fields
         schema = {}
@@ -48,14 +54,13 @@ class TestValidation(TestCase):
             'str': u'Rogue field.',
             'int': u'Rogue field.',
         }
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
     def test_built_in_types(self):
         # schema definition
         schema = {
-            'str': {'type': str},
+            'bytes': {'type': bytes},
             'unicode': {'type': unicode},
-            'basestring': {'type': basestring},
             'dict': {'type': dict, 'schema': {}},
             'list': {'type': list},
             'int': {'type': int},
@@ -67,9 +72,8 @@ class TestValidation(TestCase):
 
         # valid
         data = {
-            'str': 'foo',
+            'bytes': b'foo',
             'unicode': u'foo',
-            'basestring': u'foo',
             'dict': {},
             'list': [],
             'int': 1,
@@ -78,13 +82,17 @@ class TestValidation(TestCase):
             'bool': True,
             'none': None,
         }
+
+        if sys.version_info < (3,):
+            schema['basestring'] = {'type': basestring}
+            data['basestring'] = u'foo'
+
         self.assertEqual(validate(schema, data), data)
 
         # invalid
         data = {
-            'str': 1,
+            'bytes': 1,
             'unicode': 1,
-            'basestring': 1,
             'dict': 1,
             'list': 1,
             'int': 'foo',
@@ -93,21 +101,31 @@ class TestValidation(TestCase):
             'bool': 'foo',
             'none': 'foo',
         }
-        with self.assertRaises(ValidationError) as cm:
-            validate(schema, data)
+
         message = {
-            'str': u'Field must be a str instance, got: int.',
-            'unicode': u'Field must be a unicode instance, got: int.',
-            'basestring': u'Field must be a basestring instance, got: int.',
             'dict': u'Field must be a dict instance, got: int.',
             'list': u'Field must be a list instance, got: int.',
             'int': u'Field must be a int instance, got: str.',
-            'long': u'Field must be a long instance, got: str.',
             'float': u'Field must be a float instance, got: int.',
             'bool': u'Field must be a bool instance, got: str.',
             'none': u'Field must be None, got: str.',
         }
-        self.assertEqual(cm.exception.message, message)
+
+        if sys.version_info < (3,):
+            data['basestring'] = 1
+            message['basestring'] = u'Field must be a basestring instance, got: int.'
+            message['bytes'] = u'Field must be a str instance, got: int.'
+            message['unicode'] = u'Field must be a unicode instance, got: int.'
+            message['long'] = u'Field must be a long instance, got: str.'
+        else:
+            message['bytes'] = u'Field must be a bytes instance, got: int.'
+            message['unicode'] = u'Field must be a str instance, got: int.'
+            message['long'] = u'Field must be a int instance, got: str.'
+
+        with self.assertRaises(ValidationError) as cm:
+            validate(schema, data)
+
+        self.assertEqual(cm.exception.args[0], message)
 
 
 class TestCustomValidator(TestCase):
@@ -122,9 +140,9 @@ class TestCustomValidator(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'username': u'Missing required field.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
-    def test_valide(self):
+    def test_valid(self):
         schema = {
             'username': {
                 'validator': self._username_validator
@@ -145,14 +163,14 @@ class TestCustomValidator(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'username': u'Field must be a str instance.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
         # not lower case
         data = {'username': 'Foobar'}
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'username': u'Upper case letters not allowed.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
     def test_inferred(self):
         # schema definition
@@ -174,7 +192,7 @@ class TestCustomValidator(TestCase):
         with self.assertRaises(ValidationError) as cm:
             validate(schema, data)
         message = {'damage': u'Swords can not have damage greater then 100.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
     def _username_validator(self, name, defs, data, value, context=None):
         if not isinstance(value, str):
@@ -210,7 +228,7 @@ class TestConversion(TestCase):
         with self.assertRaises(ValidationError) as cm:
             convert(schema, data)
         message = {'int': u'Rogue field.'}
-        self.assertEqual(cm.exception.message, message)
+        self.assertEqual(cm.exception.args[0], message)
 
     def test_without_validation(self):
         # valid
@@ -229,20 +247,20 @@ class TestConversion(TestCase):
         self.assertEqual(convert(schema, data, validated=True), data)
 
     def test_with_non_required_list(self):
-	schema = {
-	    'non_required_list': {
-	        'type': list,
-	        'required': False,
-	        'schema': {'field1': {'type': int},
-			   'field2': {'type': unicode}
-                          }
-		}
-    	}
-	data = {}
-	self.assertEqual(convert(schema, data, validated=True), data)
-	data = {'non_required_list': []}
+        schema = {
+            'non_required_list': {
+                'type': list,
+                'required': False,
+                'schema': {'field1': {'type': int},
+                           'field2': {'type': unicode},
+                           }
+                }
+            }
+        data = {}
         self.assertEqual(convert(schema, data, validated=True), data)
-	data = {'non_required_list': [{'field1': 1, 'field2': u'value'}]}
+        data = {'non_required_list': []}
+        self.assertEqual(convert(schema, data, validated=True), data)
+        data = {'non_required_list': [{'field1': 1, 'field2': u'value'}]}
         self.assertEqual(convert(schema, data, validated=True), data)
 
     def test_custom_converter(self):
@@ -275,11 +293,14 @@ class TestConversion(TestCase):
         data = {'timestamp': 1000000000000}
         with self.assertRaises(ConversionError) as cm:
             convert(schema, data)
-        message = {'timestamp': u'year is out of range'}
-        self.assertEqual(cm.exception.message, message)
+        if sys.version_info < (3,):
+            message = {'timestamp': u'year is out of range'}
+        else:
+            message = {'timestamp': u'year 33658 is out of range'}
+        self.assertEqual(cm.exception.args[0], message)
 
     def _timestamp_convertor(self, defs, data, value):
         try:
             return datetime.datetime.fromtimestamp(value)
         except ValueError as e:
-            raise ConversionError(unicode(e.message))
+            raise ConversionError(unicode(e.args[0]))
