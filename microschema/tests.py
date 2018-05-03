@@ -293,7 +293,7 @@ class TestConversion(TestCase):
         data = {'timestamp': 1000000000000}
         with self.assertRaises(ConversionError) as cm:
             convert(schema, data)
-        if sys.version_info < (3,):
+        if sys.version_info < (3,6):
             message = {'timestamp': u'year is out of range'}
         else:
             message = {'timestamp': u'year 33658 is out of range'}
