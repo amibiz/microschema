@@ -5,6 +5,7 @@ from __future__ import absolute_import
 class ValidationError(ValueError):
     pass
 
+
 class ConversionError(ValueError):
     pass
 
@@ -42,7 +43,7 @@ def validate(schema, data, context=None):
         errors.update({field: messages['rogue']})
 
     # validate each field in the schema
-    for name, defs in schema.iteritems():
+    for name, defs in schema.items():
         field = data.get(name)
         required = defs.get('required', False)
 
@@ -60,7 +61,7 @@ def validate(schema, data, context=None):
         try:
             validator(name, defs, data, field, context=context)
         except ValidationError as e:
-            errors.update({name: e.message})
+            errors.update({name: e.args[0]})
 
     if errors:
         raise ValidationError(errors)
@@ -78,18 +79,18 @@ def convert(schema, data, validated=False):
     converted_data = {}
 
     # convert each field in the schema
-    for name, defs in schema.iteritems():
-	if not defs.get('required', False) and name not in data:
-	    continue
-	
-	field = data.get(name)
-        
-	# convert field
+    for name, defs in schema.items():
+        if not defs.get('required', False) and name not in data:
+            continue
+
+        field = data.get(name)
+
+        # convert field
         converter = defs.get('converter', default_converter)
         try:
             converted_data[name] = converter(defs, data, field)
         except ConversionError as e:
-            errors.update({name: e.message})
+            errors.update({name: e.args[0]})
 
     if errors:
         raise ConversionError(errors)
@@ -130,10 +131,10 @@ def default_validator(name, defs, data, value, context=None):
                     continue
                 schema = defs['schema']
                 validate(schema, item)
-            except KeyError as e:
+            except KeyError:
                 errors.update({index: messages['schema']})
             except (TypeError, ValidationError) as e:
-                errors.update({index: e.message})
+                errors.update({index: e.args[0]})
 
     if errors:
         raise ValidationError(errors)
@@ -148,20 +149,20 @@ def default_converter(defs, data, value):
     else:
         try:
             schema_type = defs['type']
-        except KeyError as e:
+        except KeyError:
             return value
 
-    if schema_type == dict:
+    if schema_type is dict:
         return convert(defs['schema'], value)
 
     errors = {}
     converted_data = []
-    if schema_type == list:
+    if schema_type is list:
         for index, item in enumerate(value):
             try:
                 converted_data.append(convert(defs['schema'], item))
             except ConversionError as e:
-                errors.update({index: e.message})
+                errors.update({index: e.args[0]})
         return converted_data
 
     if errors:
